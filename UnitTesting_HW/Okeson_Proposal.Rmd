@@ -1,0 +1,12 @@
+---
+title: "Proposal"
+author: "Morgan Okeson"
+date: "March 29, 2018"
+output: html_document
+---
+
+```{r, echo=FALSE}
+
+
+```
+

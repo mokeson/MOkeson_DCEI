@@ -1,0 +1,120 @@
+---
+title: "Okeson_Assignment2"
+author: "Morgan Okeson"
+date: "February 14, 2018"
+output: html_document
+---
+
+<!---Chunk for prep--->
+```{r echo=F}
+#Modularity lessons 4 and 5: I started out by orginizing chunks based on what I knew I had to do- 1) what I would need for input 2) what I would get an an output, 3) type of code I would need to write.
+#Modularity lesson 7: by using block headers I was able to come back to the code I wanted to write later and have an idea of the direction I had planned out. 
+
+#Load required packages
+library(knitr)
+library(data.table)
+library(maps)
+library(ggplot2)
+library(ggmap)
+library(mapdata)
+knitr::opts_chunk$set(cache=T)
+
+```
+
+<!---Chunk for loading the data--->
+```{r echo=F, cache=T}
+#Modularity lesson 2: Think about goals- I can read a replacement file easily here and won't have to change the code below
+#Modularity lesson 3: Revised my code on 03/22/2018 because I noticed errors and found better ways to clean the data
+
+#Import Data
+dt.temp<-readRDS(file="./Data/USAAnnualTemp1950_2016.rds")
+dt.pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
+
+```
+
+<!---Chunk for cleaning the data--->
+```{r echo=F, cache=T}
+#Modularity lesson 8: several commented blocks
+# 
+# #Convert data
+# dt.temp <- data.table(Temp)
+# dt.pcpn<- data.table(Pcpn)
+
+#List of df
+dt.list<-list(dt.temp,dt.pcpn)
+
+#Locating stations
+loc<-c("lat","lon")
+```
+
+<!---Chunk for subsetting the data (help from classmate, not sure I am doing it right)--->
+```{r echo=F, cache=T}
+#Modularity lesson 8: several commented blocks
+
+#Subset data
+df<-lapply(dt.list,function(x) split(x, paste(x$lat,x$lon)))
+
+#Eliminate locations w/ fewer than 40 years of data
+max = 19
+gt40<-vector('list', length(data))
+for(i in seq_along(df)){
+  gt40[[i]]<-df[[i]][lapply(df[[i]],function(x)sum(is.na(x)))<=max]
+}
+```
+
+<!---chunk for removing na values and locating stations--->
+```{r echo=F, cache=T}
+
+temp.na<-na.omit(dt.temp)
+pcpn.na<-na.omit(dt.pcpn)
+
+temp.loc<-list(temp.na$lat,temp.na$lon)
+pcpn.loc<-list(pcpn.na$lat,pcpn.na$lon)
+
+```
+
+<!---Alternative chunk for subsetting the data--->
+```{r echo=F, cache=T}
+#subset data using aggregate function
+#I think there is a way to ommit na values in this step so I can eliminate the previous chunk
+gt40<-aggregate(dt.temp, by= list(temp.loc),FUN=mean)
+
+```
+
+<!---Chunk for Linear Regression--->
+```{r echo=F, cache=T}
+#Linear regression
+#Dependent on finding locations with 40+ years of data
+#Used to find intercept and slope
+  #Will plot slopes on a map, larger slope = more warming
+
+```
+
+<!---Chunk for extracting slope--->
+```{r echo=F, cache=T}
+#Extracting slope from models
+#Dependent on linear regression
+
+```
+
+<!---Chunk for cleaning dataframe--->
+```{r echo=F, cache=T}
+
+
+```
+
+<!---Chunk for preparing for mapping--->
+```{r echo=F, cache=T}
+
+
+```
+
+<!---Chunk for Precip Map--->
+```{r echo=F, cache=T}
+
+```
+
+<!---Chunk for Temp Map--->
+```{r echo=F, cache=T}
+
+```
