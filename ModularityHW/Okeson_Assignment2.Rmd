@@ -17,6 +17,9 @@ library(maps)
 library(ggplot2)
 library(ggmap)
 library(mapdata)
+#Packages for subsetting climate data
+library(dplyr)
+library(stringr)
 knitr::opts_chunk$set(cache=T)
 
 ```
@@ -27,8 +30,8 @@ knitr::opts_chunk$set(cache=T)
 #Modularity lesson 3: Revised my code on 03/22/2018 because I noticed errors and found better ways to clean the data
 
 #Import Data
-dt.temp<-readRDS(file="./Data/USAAnnualTemp1950_2016.rds")
-dt.pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
+temp<-readRDS(file="./Data/USAAnnualTemp1950_2016.rds")
+pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
 
 ```
 
@@ -36,9 +39,11 @@ dt.pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
 ```{r echo=F, cache=T}
 #subset data using aggregate function
 
-ag1.temp<-aggregate(dt.temp$value, by= dt.temp[c("lat","lon")],FUN=mean)
-ag1.temp$count<-aggregate(dt.temp$value, by= dt.temp[c("lat","lon")],FUN=length)[,3]
+ag1.temp<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=mean)
+ag1.temp$count<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=length)[,3]
 gt40<-ag1.temp[ag1.temp$count>40,]
+
+
 
 ```
 
@@ -48,6 +53,7 @@ gt40<-ag1.temp[ag1.temp$count>40,]
 #Dependent on finding locations with 40+ years of data
 #Used to find intercept and slope
   #Will plot slopes on a map, larger slope = more warming
+
 
 ```
 
