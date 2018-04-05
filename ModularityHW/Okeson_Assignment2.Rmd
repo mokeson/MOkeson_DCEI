@@ -38,12 +38,9 @@ pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
 <!---Chunk for subsetting the data--->
 ```{r echo=F, cache=T}
 #subset data using aggregate function
-
 ag1.temp<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=mean)
 ag1.temp$count<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=length)[,3]
 gt40<-ag1.temp[ag1.temp$count>40,]
-
-
 
 ```
 
