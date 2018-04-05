@@ -32,52 +32,13 @@ dt.pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
 
 ```
 
-<!---Chunk for cleaning the data--->
-```{r echo=F, cache=T}
-#Modularity lesson 8: several commented blocks
-# 
-# #Convert data
-# dt.temp <- data.table(Temp)
-# dt.pcpn<- data.table(Pcpn)
-
-#List of df
-dt.list<-list(dt.temp,dt.pcpn)
-
-#Locating stations
-loc<-c("lat","lon")
-```
-
-<!---Chunk for subsetting the data (help from classmate, not sure I am doing it right)--->
-```{r echo=F, cache=T}
-#Modularity lesson 8: several commented blocks
-
-#Subset data
-df<-lapply(dt.list,function(x) split(x, paste(x$lat,x$lon)))
-
-#Eliminate locations w/ fewer than 40 years of data
-max = 19
-gt40<-vector('list', length(data))
-for(i in seq_along(df)){
-  gt40[[i]]<-df[[i]][lapply(df[[i]],function(x)sum(is.na(x)))<=max]
-}
-```
-
-<!---chunk for removing na values and locating stations--->
-```{r echo=F, cache=T}
-
-temp.na<-na.omit(dt.temp)
-pcpn.na<-na.omit(dt.pcpn)
-
-temp.loc<-list(temp.na$lat,temp.na$lon)
-pcpn.loc<-list(pcpn.na$lat,pcpn.na$lon)
-
-```
-
-<!---Alternative chunk for subsetting the data--->
+<!---Chunk for subsetting the data--->
 ```{r echo=F, cache=T}
 #subset data using aggregate function
-#I think there is a way to ommit na values in this step so I can eliminate the previous chunk
-gt40<-aggregate(dt.temp, by= list(temp.loc),FUN=mean)
+
+ag1.temp<-aggregate(dt.temp$value, by= dt.temp[c("lat","lon")],FUN=mean)
+ag1.temp$count<-aggregate(dt.temp$value, by= dt.temp[c("lat","lon")],FUN=length)[,3]
+gt40<-ag1.temp[ag1.temp$count>40,]
 
 ```
 
