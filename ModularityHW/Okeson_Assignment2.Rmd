@@ -41,6 +41,16 @@ pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
 ag1.temp<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=mean)
 ag1.temp$count<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=length)[,3]
 gt40<-ag1.temp[ag1.temp$count>40,]
+goodinds<-c()
+for (counter in 1:nrow(temp))
+{
+  #extract lat and lon for row counter of temp
+  
+  
+  #See if it matches any of the lat lon from gt40, if it does add counter into goodinds
+}
+#throw out the rows of temp that are not in goodinds
+
 
 ```
 
