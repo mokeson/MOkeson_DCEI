@@ -70,7 +70,7 @@ temp<-temp[goodinds,]
 #prepare rec. for saving slopes
   #could use gt40, would need new column 
 #for each weather station name/ row of gt40
-  #extract data for that weather staton from temp
+#extract data for that weather staton from temp
   #lm
   #save slope
 
