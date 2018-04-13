@@ -41,7 +41,10 @@ pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
 ag1.temp<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=mean)
 ag1.temp$count<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=length)[,3]
 gt40<-ag1.temp[ag1.temp$count>40,]
+#setup for () loop
+  #where we will put the good indicies
 goodinds<-c()
+  #loop
 for (counter in 1:nrow(temp))
 {
   #extract lat and lon for row counter of temp
@@ -69,26 +72,22 @@ temp<-temp[goodinds,]
 
 #prepare rec. for saving slopes
   #could use gt40, would need new column 
+gt40$slopes<-c()[,4]
+
 #for each weather station name/ row of gt40
-#extract data for that weather staton from temp
-  #lm
-  #save slope
-
-
-```
-
-<!---Chunk for extracting slope--->
-```{r echo=F, cache=T}
-#Extracting slope from models
-#Dependent on linear regression
-
-```
-
-<!---Chunk for cleaning dataframe--->
-```{r echo=F, cache=T}
-
+for(counter in 1:nrow(temp))
+  {
+  #extract data from each weather station in new temp df
+  
+  #run linear regression
+  lm()
+  
+  #save slopes in gt40
+  
+}
 
 ```
+
 
 <!---Chunk for preparing for mapping--->
 ```{r echo=F, cache=T}
@@ -96,12 +95,12 @@ temp<-temp[goodinds,]
 
 ```
 
-<!---Chunk for Precip Map--->
+<!---Chunk for Temp Map--->
 ```{r echo=F, cache=T}
 
 ```
 
-<!---Chunk for Temp Map--->
+<!---Chunk for Precip Map--->
 ```{r echo=F, cache=T}
 
 ```
