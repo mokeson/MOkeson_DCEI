@@ -51,7 +51,7 @@ for (counter in 1:nrow(temp))
   exrow<-temp[counter,c("lat","lon")]
   
   #See if it matches any of the lat lon from gt40, if it does add counter into goodinds
-  matches<-which((exrow[1]== gt40$lat) & (exrow[2]== gt40$lon))
+  matches<-which((abs(exrow[1]- gt40$lat)<1e-5) & (abs(exrow[2]- gt40$lon)<1e-5))
   if (length(matches)>0)
   {
     #add counter to goodinds
@@ -80,7 +80,7 @@ for(counter in 1:nrow(temp))
   #extract data from each weather station in new temp df
   
   #run linear regression
-  lm()
+  lm(year~value,temp)
   
   #save slopes in gt40
   
