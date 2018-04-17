@@ -48,10 +48,10 @@ goodinds<-c()
 for (counter in 1:nrow(temp))
 {
   #extract lat and lon for row counter of temp
-  exrow<-temp[counter,c("lat","lon")]
+  exrow<-as.numeric(temp[counter,c("lat","lon")])
   
   #See if it matches any of the lat lon from gt40, if it does add counter into goodinds
-  matches<-which((exrow[1]== gt40$lat) & (exrow[2]== gt40$lon))
+  matches<-which((abs(exrow[1]- gt40$lat)<1e-6) & (abs(exrow[2]- gt40$lon)<1e-6))
   if (length(matches)>)
   {
     #add counter to goodinds
