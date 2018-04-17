@@ -52,7 +52,7 @@ for (counter in 1:nrow(temp))
   
   #See if it matches any of the lat lon from gt40, if it does add counter into goodinds
   matches<-which((abs(exrow[1]- gt40$lat)<1e-6) & (abs(exrow[2]- gt40$lon)<1e-6))
-  if (length(matches)>)
+  if (length(matches)>0)
   {
     #add counter to goodinds
     goodinds<-c(goodinds,counter)
@@ -72,15 +72,17 @@ temp<-temp[goodinds,]
 
 #prepare rec. for saving slopes
   #could use gt40, would need new column 
-gt40$slopes<-c()[,4]
+gt40$slope<-NA
 
 #for each weather station name/ row of gt40
-for(counter in 1:nrow(temp))
+for(counter in 1:nrow(gt40))
   {
   #extract data from each weather station in new temp df
+    #df with same columns as temp but only the rows for the WS on at this point in loop
+  temp.ws<-as.numeric(temp[counter,c("year","variable","value","lat","lon","state","name")])
   
   #run linear regression
-  lm(value~year, temp)
+  lm(value~year, tempws)
   
   #save slopes in gt40
   
