@@ -1,0 +1,9 @@
+base
+knitr
+data.table
+maps
+ggplot2
+ggmap
+mapdata
+dplyr
+stringr

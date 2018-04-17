@@ -24,7 +24,7 @@ knitr::opts_chunk$set(cache=T)
 
 ```
 
-<!---Chunk for loading the data--->
+<!---Chunk for loading the data and removing NA--->
 ```{r echo=F, cache=T}
 #Modularity lesson 2: Think about goals- I can read a replacement file easily here and won't have to change the code below
 #Modularity lesson 3: Revised my code on 03/22/2018 because I noticed errors and found better ways to clean the data
@@ -32,7 +32,9 @@ knitr::opts_chunk$set(cache=T)
 #Import Data
 temp<-readRDS(file="./Data/USAAnnualTemp1950_2016.rds")
 pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
-
+temp<-temp[is.finite(temp$value),]
+pcpn<-pcpn[is.finite(pcpn$data),]
+  #***Names of  columns are not the same in temp and pcpn***
 ```
 
 <!---Chunk for subsetting the data--->
@@ -79,13 +81,19 @@ for(counter in 1:nrow(gt40))
   {
   #extract data from each weather station in new temp df
     #df with same columns as temp but only the rows for the WS on at this point in loop
-  temp.ws<-as.numeric(temp[counter,c("year","variable","value","lat","lon","state","name")])
+    #calls the numbers of the rows that are for the ws at each step of the loop
+  exrow<-as.numeric(gt40[counter,c("lat","lon")])
+  
+  temp.row<-which((abs(exrow[1]- temp$lat)<1e-6) & (abs(exrow[2]-temp$lon)<1e-6))
+  #find all the rows of temp that match 
+  temp.ws<-temp[temp.row,]
   
   #run linear regression
-  lm(value~year, tempws)
+  model<-lm(value~year, temp.ws)
+  slope<-(coef(model)[2])#extract slope, call it the variable name "slope"
   
   #save slopes in gt40
-  
+  gt40$slope[counter]<-slope
 }
 
 ```
