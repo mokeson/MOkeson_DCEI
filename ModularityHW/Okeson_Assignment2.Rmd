@@ -101,12 +101,19 @@ for(counter in 1:nrow(gt40))
 
 <!---Chunk for preparing for mapping--->
 ```{r echo=F, cache=T}
+#Map of the US
+  #Why is it coming out so small
+map("world", c("alaska","hawaii","USA"))
 
+  #or if I do this, I don't get alaska or hawaii
+map("state",".")
 
 ```
 
 <!---Chunk for Temp Map--->
 ```{r echo=F, cache=T}
+
+
 
 ```
 
