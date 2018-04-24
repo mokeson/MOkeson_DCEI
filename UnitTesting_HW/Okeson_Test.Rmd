@@ -5,7 +5,21 @@ date: "March 29, 2018"
 output: html_document
 ---
 
-```{r, echo=FALSE}
+#Test practice function
 
+```{r, echo=T}
+#Source in the function from a R Script 
+source("myplot.R")
+
+#State what function is supposed to do 
+  #create 2 vectors
+  #v1<-c(1,2,3,4)
+  #v2<-c(1,2,3,4)
+
+#Call plot function function 
+  #plt1<-myplot(v1,v2)
+
+#Comments about what this plot should look like (can put this before the chunk)
 
 ```
+
