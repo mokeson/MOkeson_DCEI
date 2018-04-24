@@ -26,8 +26,43 @@ source("myplot.R")
 #Test function to change date and time format for data
 
 ```{r, echo=T}
+#Source in the function from an R script
+source("SM_WP_NewDate.R")
 
+#Function should change the date and time format for Soil moisture and matric potential data
+  #list variables
+
+#call SM_WP_NewDate function
+newdate1<-newdate()
+
+#if else statement here? 
+
+#repeat for different varaibles?
 
 ```
 
+#Test function to plot soil moisture and water potential data after the date and time has been changed
 
+```{r, echo=T}
+#source in the function from an R script
+source("SMPlot.R")
+
+#Function should plot date on the x axis and time soil moisture on the y axis
+
+#Below are constraints I have used in the past, how would I unit test something like this?
+    #xlim<-c(as.POSIXct("2017-05-01 01:00:00"),as.POSIXct("2017-07-01 01:00:00"))
+    #ylim<-c(0.3,0.5)
+  #dt1<-
+  #data1<-
+  #xlim<-
+  #ylim<-
+  #dt2<-
+  #data2<-
+
+#Call function
+SM_plot1<-SM_plot()
+
+#Explain what this plot should produce
+
+
+```

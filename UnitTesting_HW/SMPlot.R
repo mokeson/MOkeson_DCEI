@@ -11,7 +11,7 @@
 #output
   #a plot with date on the x axis and soil moisture or water potential data on the y axis
 
-SMWP_plot<-function(dt1,data1,xlim,ylim,dt2,data2)
+SM_plot<-function(dt1,data1,xlim,ylim,dt2,data2)
 {
   plot(data1~dt1,type="l",xlim = xlim,ylim = ylim,col='red',xlab="Date",ylab="Soil Moisture (m3/m3)")
 par(new=T)
