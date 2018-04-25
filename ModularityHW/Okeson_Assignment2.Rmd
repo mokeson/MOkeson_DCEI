@@ -13,13 +13,19 @@ output: html_document
 #Load required packages
 library(knitr)
 library(data.table)
-library(maps)
 library(ggplot2)
-library(ggmap)
-library(mapdata)
+
 #Packages for subsetting climate data
 library(dplyr)
 library(stringr)
+
+#packages for mapping
+library(gstat)
+library(phylin)
+library(maps)
+library(sp)
+library(ggmap)
+library(mapdata)
 knitr::opts_chunk$set(cache=T)
 
 ```
@@ -99,21 +105,51 @@ for(counter in 1:nrow(gt40))
 ```
 
 
-<!---Chunk for preparing for mapping--->
+<!---Chunk for preparing for mapping (R maps package)--->
 ```{r echo=F, cache=T}
 #Map of the US
-  #Why is it coming out so small
-map("world", c("alaska","hawaii","USA"))
+cus<-map("state",".")
 
-  #or if I do this, I don't get alaska or hawaii
-map("state",".")
+#Map of Hawaii
+hi<-map("world","USA:Hawaii")
+
+#Map of Alaska
+ak<-map("world","USA:Alaska",xlim = c(-180,-120))
+
 
 ```
 
 <!---Chunk for Temp Map--->
 ```{r echo=F, cache=T}
+#Terry's approach
+#make data frame with slopes and coordinates into spatial objects
+  #Produce a grid that creates a greater density of points between those
+  #use idw function to interpolate spatial object of the data frame 
+    #slopes as a function of coordinates
+  #Plot result of idw (spatial object) with spplot
+    #spplot(data = spatial df, zcol=slope)
+    #or spplot.grid(obj= new_df, zcol = "slope")
+    #will give a heat map of the grids 
 
+#grid for hawaii
+hix<-seq(-160.24345, -154.80420,by = .1)
+hiy<-seq(18.96392, 22.22314, by = .1)
+hid1<-expand.grid(x=hix,y=hiy)
 
+#hawaii idw
+hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
+
+#slopes as a function of coordinates
+sp::coordinates(hid1)<- c("x","y")
+
+#convert to spatial points df
+hid1$slope<-hi.idw
+
+#Plot result of idw (spatial object) with spplot
+spplot(obj = hid1, zcol = hid1@data$Z)
+
+#take an example and break it to figure out what you are doing wrong
+  #demo in help session for spplot
 
 ```
 
