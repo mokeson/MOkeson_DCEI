@@ -150,8 +150,21 @@ hid1$slope<-hi.idw
 #Plot result of idw (spatial object) with spplot
 spplot(obj = hid1, zcol = hid1@data$Z)
 
-#take an example and break it to figure out what you are doing wrong
-  #demo in help session for spplot
+
+
+```
+
+<!---Chunk for Temp Map using automap--->
+```{r echo=F, cache=T}
+
+#load automap (can move this to beginning with rest of the packages if it is successful)
+library(automap)
+
+#Ordinary kriging 
+#Need help understanding that these arguments mean in relation to my data https://www.r-bloggers.com/automatic-spatial-interpolation-with-r-the-automap-package/
+
+
+
 
 ```
 
