@@ -118,9 +118,10 @@ cus<-map("state",".")
 hi<-map("world","USA:Hawaii")
 
 #Map of Alaska
-ak<-map("world","USA:Alaska",xlim = c(-180,-120))
-
-
+ak<-
+  
+map("world","USA:Alaska",xlim = c(-180,-120))
+points(gt40$lon,gt40$lat)
 ```
 
 <!---Chunk for Temp Map--->
