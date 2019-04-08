@@ -2,9 +2,7 @@
 title: "Okeson_Assignment2"
 author: "Morgan Okeson"
 date: "February 14, 2018"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 <!---Chunk for prep--->
@@ -110,6 +108,7 @@ pcpn <- pcpn[goodinds,]
 #Used to find intercept and slope
   #Will plot slopes on a map, larger slope = more warming
 
+# temp data
 #prepare rec. for saving slopes
   #could use gt40, would need new column 
 gt40$slope<-NA
@@ -134,6 +133,31 @@ for(counter in 1:nrow(gt40))
   gt40$slope[counter]<-slope
 }
 
+
+#pcpn data
+#prepare rec. for saving slopes
+  #could use gt40, would need new column 
+gt40p$slope<-NA
+
+#for each weather station name/ row of gt40
+for(counter in 1:nrow(gt40p))
+  {
+  #extract data from each weather station in new temp df
+    #df with same columns as temp but only the rows for the WS on at this point in loop
+    #calls the numbers of the rows that are for the ws at each step of the loop
+  exrow<-as.numeric(gt40p[counter,c("lat","lon")])
+  
+  pcpn.row<-which((abs(exrow[1]- pcpn$lat)<1e-6) & (abs(exrow[2]-pcpn$lon)<1e-6))
+  #find all the rows of temp that match 
+  pcpn.ws<-pcpn[pcpn.row,]
+  
+  #run linear regression
+  model<-lm(data~year, pcpn.ws)
+  slope<-(coef(model)[2])#extract slope, call it the variable name "slope"
+  
+  #save slopes in gt40
+  gt40p$slope[counter]<-slope
+}
 ```
 
 
@@ -150,114 +174,49 @@ ak<-map("world","USA:Alaska",xlim = c(-180,-120))
 points(gt40$lon,gt40$lat)
 ```
 
-<!---Chunk for Temp Map--->
-```{r echo=F, cache=T}
-#Terry's approach
-#make data frame with slopes and coordinates into spatial objects
-  #Produce a grid that creates a greater density of points between those
-  #use idw function to interpolate spatial object of the data frame 
-    #slopes as a function of coordinates
-  #Plot result of idw (spatial object) with spplot
-    #spplot(data = spatial df, zcol=slope)
-    #or spplot.grid(obj= new_df, zcol = "slope")
-    #will give a heat map of the grids 
+<!-- <!---Chunk for Temp Map---> -->
+<!-- ```{r echo=F, cache=T} -->
+<!-- #Terry's approach -->
+<!-- #make data frame with slopes and coordinates into spatial objects -->
+<!--   #Produce a grid that creates a greater density of points between those -->
+<!--   #use idw function to interpolate spatial object of the data frame  -->
+<!--     #slopes as a function of coordinates -->
+<!--   #Plot result of idw (spatial object) with spplot -->
+<!--     #spplot(data = spatial df, zcol=slope) -->
+<!--     #or spplot.grid(obj= new_df, zcol = "slope") -->
+<!--     #will give a heat map of the grids  -->
 
-#grid for hawaii
-hix<-seq(-160.24345, -154.80420,by = .1)
-hiy<-seq(18.96392, 22.22314, by = .1)
-hid1<-expand.grid(x=hix,y=hiy)
+<!-- #grid for hawaii -->
+<!-- hix<-seq(-160.24345, -154.80420,by = .1) -->
+<!-- hiy<-seq(18.96392, 22.22314, by = .1) -->
+<!-- hid1<-expand.grid(x=hix,y=hiy) -->
 
-#hawaii idw
-hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
+<!-- #hawaii idw -->
+<!-- hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1) -->
 
-#slopes as a function of coordinates
-sp::coordinates(hid1)<- c("x","y")
+<!-- #slopes as a function of coordinates -->
+<!-- sp::coordinates(hid1)<- c("x","y") -->
 
-#convert to spatial points df
-hid1$slope<-hi.idw
+<!-- #convert to spatial points df -->
+<!-- hid1$slope<-hi.idw -->
 
-#Plot result of idw (spatial object) with spplot
-spplot(obj = hid1, zcol = hid1@data$Z)
-
-
-
-```
-
-<!---Chunk for Temp Map using automap--->
-```{r echo=F, cache=T}
-
-#load automap (can move this to beginning with rest of the packages if it is successful)
-library(automap)
-
-#Ordinary kriging 
-#Need help understanding that these arguments mean in relation to my data https://www.r-bloggers.com/automatic-spatial-interpolation-with-r-the-automap-package/
+<!-- #Plot result of idw (spatial object) with spplot -->
+<!-- spplot(obj = hid1, zcol = hid1@data$Z) -->
 
 
 
+<!-- ``` -->
 
-```
+<!-- <!---Chunk for Temp Map using automap---> -->
+<!-- ```{r echo=F, cache=T} -->
+
+<!-- #load automap (can move this to beginning with rest of the packages if it is successful) -->
+<!-- library(automap) -->
+
+<!-- #Ordinary kriging  -->
+<!-- #Need help understanding that these arguments mean in relation to my data https://www.r-bloggers.com/automatic-spatial-interpolation-with-r-the-automap-package/ -->
 
 
-#Precipitation Data
 
-<!---Chunk for subsetting the data--->
-```{r echo=F, cache=T}
-#subset data using aggregate function
-ag1.pcpn<-aggregate(pcpn$data, by= pcpn[c("lat","lon")],FUN=mean)
-ag1.pcpn$count<-aggregate(pcpn$data, by= pcpn[c("lat","lon")],FUN=length)[,3]
-gt40.pcpn<-ag1.pcpn[ag1.pcpn$count>40,]
-#setup for () loop
-  #where we will put the good indicies
-goodinds.pcpn<-c()
-  #loop
-for (counter in 1:nrow(pcpn))
-{
-  #extract lat and lon for row counter of temp
-  exrow<-as.numeric(pcpn[counter,c("lat","lon")])
-  
-  #See if it matches any of the lat lon from gt40, if it does add counter into goodinds
-  matches<-which((abs(exrow[1]- gt40.pcpn$lat)<1e-6) & (abs(exrow[2]- gt40.pcpn$lon)<1e-6))
-  if (length(matches)>0)
-  {
-    #add counter to goodinds
-    goodinds.pcpn<-c(goodinds.pcpn,counter)
-  }
-}
-#throw out the rows of temp that are not in goodinds
-pcpn<-pcpn[goodinds.pcpn,]
 
-```
-
-<!---Chunk for Linear Regression--->
-```{r echo=F, cache=T}
-#Linear regression
-#Dependent on finding locations with 40+ years of data
-#Used to find intercept and slope
-  #Will plot slopes on a map, larger slope = more warming
-
-#prepare rec. for saving slopes
-  #could use gt40, would need new column 
-gt40.pcpn$slope<-NA
-
-#for each weather station name/ row of gt40
-for(counter in 1:nrow(gt40.pcpn))
-  {
-  #extract data from each weather station in new temp df
-    #df with same columns as temp but only the rows for the WS on at this point in loop
-    #calls the numbers of the rows that are for the ws at each step of the loop
-  exrow<-as.numeric(gt40.pcpn[counter,c("lat","lon")])
-  
-  pcpn.row<-which((abs(exrow[1]- pcpn$lat)<1e-6) & (abs(exrow[2]-pcpn$lon)<1e-6))
-  #find all the rows of temp that match 
-  pcpn.ws<-pcpn[pcpn.row,]
-  
-  #run linear regression
-  model.pcpn<-lm(data~year, pcpn.ws)
-  slope.pcpn<-(coef(model)[2])#extract slope, call it the variable name "slope"
-  
-  #save slopes in gt40
-  gt40.pcpn$slope.pcpn[counter]<-slope.pcpn
-}
-
-##all of the slope calculations are coming out the same, did not do anything different on this part than I did with temp. 
-```
+<!-- ``` -->
