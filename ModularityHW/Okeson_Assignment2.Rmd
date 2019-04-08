@@ -16,6 +16,7 @@ output:
 library(knitr)
 library(data.table)
 library(ggplot2)
+library(data.table)
 
 #Packages for subsetting climate data
 library(dplyr)
@@ -42,6 +43,7 @@ knitr::opts_chunk$set(cache=T)
 #Import Data
 temp<-readRDS(file="./Data/USAAnnualTemp1950_2016.rds")
 pcpn<-readRDS(file="./Data/USAAnnualPcpn1950_2016.rds")
+# Remove NA values
 temp<-temp[is.finite(temp$value),]
 pcpn<-pcpn[is.finite(pcpn$data),]
   #***Names of  columns are not the same in temp and pcpn***
@@ -49,6 +51,7 @@ pcpn<-pcpn[is.finite(pcpn$data),]
 
 <!---Chunk for subsetting the data--->
 ```{r echo=F, cache=T}
+# temp data
 #subset data using aggregate function
 ag1.temp<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=mean)
 ag1.temp$count<-aggregate(temp$value, by= temp[c("lat","lon")],FUN=length)[,3]
@@ -72,6 +75,31 @@ for (counter in 1:nrow(temp))
 }
 #throw out the rows of temp that are not in goodinds
 temp<-temp[goodinds,]
+
+## Precipitation data
+#subset data using aggregate function
+ag1.pcpn <- aggregate(pcpn$data, by= pcpn[c("lat","lon")],FUN=mean)
+ag1.pcpn$count <- aggregate(pcpn$data, by= pcpn[c("lat","lon")],FUN=length)[,3]
+gt40p <- ag1.pcpn[ag1.pcpn$count>40,]
+#setup for () loop
+  #where we will put the good indicies
+goodinds<-c()
+  #loop
+for (counter in 1:nrow(pcpn))
+{
+  #extract lat and lon for row counter of temp
+  exrow<-as.numeric(pcpn[counter,c("lat","lon")])
+  
+  #See if it matches any of the lat lon from gt40, if it does add counter into goodinds
+  matches<-which((abs(exrow[1]- gt40p$lat)<1e-6) & (abs(exrow[2]- gt40p$lon)<1e-6))
+  if (length(matches)>0)
+  {
+    #add counter to goodinds
+    goodinds<-c(goodinds,counter)
+  }
+}
+#throw out the rows of temp that are not in goodinds
+pcpn <- pcpn[goodinds,]
 
 ```
 
