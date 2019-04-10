@@ -164,7 +164,8 @@ for(counter in 1:nrow(gt40p))
 <!---Chunk for preparing for mapping (R maps package)--->
 ```{r echo=F, cache=T}
 #Map of the US
-cus<-map("state",".")
+cus.temp<-map("state",".")
+points 
 
 #Map of Hawaii
 hi<-map("world","USA:Hawaii")
@@ -174,49 +175,49 @@ ak<-map("world","USA:Alaska",xlim = c(-180,-120))
 points(gt40$lon,gt40$lat)
 ```
 
-<!-- <!---Chunk for Temp Map---> -->
-<!-- ```{r echo=F, cache=T} -->
-<!-- #Terry's approach -->
-<!-- #make data frame with slopes and coordinates into spatial objects -->
-<!--   #Produce a grid that creates a greater density of points between those -->
-<!--   #use idw function to interpolate spatial object of the data frame  -->
-<!--     #slopes as a function of coordinates -->
-<!--   #Plot result of idw (spatial object) with spplot -->
-<!--     #spplot(data = spatial df, zcol=slope) -->
-<!--     #or spplot.grid(obj= new_df, zcol = "slope") -->
-<!--     #will give a heat map of the grids  -->
+<!---Chunk for Temp Map--->
+```{r echo=F, cache=T}
+#Terry's approach
+#make data frame with slopes and coordinates into spatial objects
+  #Produce a grid that creates a greater density of points between those
+  #use idw function to interpolate spatial object of the data frame
+    #slopes as a function of coordinates
+  #Plot result of idw (spatial object) with spplot
+    #spplot(data = spatial df, zcol=slope)
+    #or spplot.grid(obj= new_df, zcol = "slope")
+    #will give a heat map of the grids
 
-<!-- #grid for hawaii -->
-<!-- hix<-seq(-160.24345, -154.80420,by = .1) -->
-<!-- hiy<-seq(18.96392, 22.22314, by = .1) -->
-<!-- hid1<-expand.grid(x=hix,y=hiy) -->
+#grid for hawaii
+hix<-seq(-160.24345, -154.80420,by = .1)
+hiy<-seq(18.96392, 22.22314, by = .1)
+hid1<-expand.grid(x=hix,y=hiy)
 
-<!-- #hawaii idw -->
-<!-- hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1) -->
+#hawaii idw
+hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
 
-<!-- #slopes as a function of coordinates -->
-<!-- sp::coordinates(hid1)<- c("x","y") -->
+#slopes as a function of coordinates
+sp::coordinates(hid1)<- c("x","y")
 
-<!-- #convert to spatial points df -->
-<!-- hid1$slope<-hi.idw -->
+#convert to spatial points df
+hid1$slope<-hi.idw
 
-<!-- #Plot result of idw (spatial object) with spplot -->
-<!-- spplot(obj = hid1, zcol = hid1@data$Z) -->
-
-
-
-<!-- ``` -->
-
-<!-- <!---Chunk for Temp Map using automap---> -->
-<!-- ```{r echo=F, cache=T} -->
-
-<!-- #load automap (can move this to beginning with rest of the packages if it is successful) -->
-<!-- library(automap) -->
-
-<!-- #Ordinary kriging  -->
-<!-- #Need help understanding that these arguments mean in relation to my data https://www.r-bloggers.com/automatic-spatial-interpolation-with-r-the-automap-package/ -->
+#Plot result of idw (spatial object) with spplot
+spplot(obj = hid1, zcol = hid1@data$Z)
 
 
 
+```
 
-<!-- ``` -->
+<!---Chunk for Temp Map using automap--->
+```{r echo=F, cache=T}
+
+#load automap (can move this to beginning with rest of the packages if it is successful)
+library(automap)
+
+#Ordinary kriging
+#Need help understanding that these arguments mean in relation to my data https://www.r-bloggers.com/automatic-spatial-interpolation-with-r-the-automap-package/
+
+
+
+
+```
