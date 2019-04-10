@@ -4,9 +4,18 @@ author: "Morgan Okeson"
 date: "February 14, 2018"
 output: html_document
 ---
+# Annual-average Temperature and Precipitation in the United States: An anlysis from 1950 to 2010
+
+## Intro
+
+As a result of climate change, annual-average temperatures are predicted to continue increasing over and annual-average previpitation values are predicted to stay the same. Although these annual-average precipitation values are not predicted to change, the magnitude of observed events is expected to increase due to a changing climate. We can expect to see higher magnitude precipitation events which will likely upset the water budget in many areas; especially vaunerable areas are where an ecotone boundary is present because these locations have a delicate balance they are trying to maintain ecologically, hydrologically, and beyone. The purpose of this research was to visualize how annual-average temperature and precipitation trends have changed based on meteorological data in the United States. 
+
+## Methods
+
+All analysis for this project was completed in R. After loading the temperature and precipitation data we removed all NA values from the datasets. We then subset each of the datasets usinf the aggregate function so that we were only using stations that provided greater than 40 years of data. Next, we used linear regression to extract the slopes of the change in temperature and precipitation over the ovserved time frame. These values were then used in and inverse distance weighting (IDW) and were plotted on the figures (???). 
 
 <!---Chunk for prep--->
-```{r echo=F}
+```{r echo=F, cache=T}
 #Modularity lessons 4 and 5: I started out by orginizing chunks based on what I knew I had to do- 1) what I would need for input 2) what I would get an an output, 3) type of code I would need to write.
 #Modularity lesson 7: by using block headers I was able to come back to the code I wanted to write later and have an idea of the direction I had planned out. 
 
@@ -46,6 +55,7 @@ temp<-temp[is.finite(temp$value),]
 pcpn<-pcpn[is.finite(pcpn$data),]
   #***Names of  columns are not the same in temp and pcpn***
 ```
+
 
 <!---Chunk for subsetting the data--->
 ```{r echo=F, cache=T}
@@ -160,78 +170,111 @@ for(counter in 1:nrow(gt40p))
 }
 ```
 
-<!---Chunk for preparing for mapping (R maps package)--->
-```{r echo=F, cache=T}
-# 
+<!---Chunk for preparing for mapping temp on contintntal US (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 1. Annual-Average Temperature data for the Continental United States"}
 # Map of the US
 cus.temp<-map("state",".")
-points 
+points(gt40$lon,gt40$lat) 
 
-#Map of Hawaii
+```
+
+<!---Chunk for preparing for mapping temp on hawaii (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 2. Annual-Average Temperature data for Hawaii"}
+#Map of Hawaii (no data?)
 hi.temp<-map("world","USA:Hawaii")
+points(gt40$lon,gt40$lat) 
 
+```
+
+<!---Chunk for preparing for mapping temp on Alaska (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 3. Annual-Average Temperarura data for Alaska"}
 #Map of Alaska
 ak.temp<-map("world","USA:Alaska",xlim = c(-180,-120))
 points(gt40$lon,gt40$lat)
+
+```
+
+<!---Chunk for preparing for mapping precip on contintntal US (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 4. Annual-Average Precipitation data for the Continental United States"}
+# Map of the US
+cus.pcpn<-map("state",".")
+points(gt40p$lon,gt40p$lat)
+
+```
+
+<!---Chunk for preparing for mapping pcpn on hawaii (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Annual-Average Precipitation data for Hawaii"}
+#Map of Hawaii
+hi.pcpn<-map("world","USA:Hawaii")
+points(gt40p$lon,gt40p$lat)
+
+```
+
+<!---Chunk for preparing for mapping pcpn on Alaska (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Annual-Average Precipitation data for Alaska"}
+#Map of Alaska
+ak.temp<-map("world","USA:Alaska",xlim = c(-180,-120))
+points(gt40p$lon,gt40p$lat)
+
 ```
 
 <!---Chunk for Temp Map--->
 ```{r echo=F, cache=T}
 
-# Code from https://mgimond.github.io/Spatial/interpolation-in-r.html 
-# Create an empty grid where n is the total number of cells
-grd <- as.data.frame(spsample(gt40, "regular", n=50000))
-names(grd)       <- c("X", "Y")
-coordinates(grd) <- c("X", "Y")
-gridded(grd)     <- TRUE  # Create SpatialPixel object
-fullgrid(grd)    <- TRUE  # Create SpatialGrid object
-
-# Add P's projection information to the empty grid
-proj4string(grd) <- proj4string(P)
-
-# Interpolate the grid cells using a power value of 2 (idp=2.0)
-P.idw <- gstat::idw(Precip_in ~ 1, P, newdata=grd, idp=2.0)
-
-# Convert to raster object then clip to Texas
-r       <- raster(P.idw)
-r.m     <- mask(r, W)
-
-# Plot
-tm_shape(r.m) + 
-  tm_raster(n=10,palette = "RdBu", auto.palette.mapping = FALSE,
-            title="Predicted precipitation \n(in inches)") + 
-  tm_shape(P) + tm_dots(size=0.2) +
-  tm_legend(legend.outside=TRUE)
+# # Code from https://mgimond.github.io/Spatial/interpolation-in-r.html 
+# # Create an empty grid where n is the total number of cells
+# grd <- as.data.frame(spsample(gt40, "regular", n=50000))
+# names(grd)       <- c("X", "Y")
+# coordinates(grd) <- c("X", "Y")
+# gridded(grd)     <- TRUE  # Create SpatialPixel object
+# fullgrid(grd)    <- TRUE  # Create SpatialGrid object
+# 
+# # Add P's projection information to the empty grid
+# proj4string(grd) <- proj4string(P)
+# 
+# # Interpolate the grid cells using a power value of 2 (idp=2.0)
+# P.idw <- gstat::idw(Precip_in ~ 1, P, newdata=grd, idp=2.0)
+# 
+# # Convert to raster object then clip to Texas
+# r       <- raster(P.idw)
+# r.m     <- mask(r, W)
+# 
+# # Plot
+# tm_shape(r.m) + 
+#   tm_raster(n=10,palette = "RdBu", auto.palette.mapping = FALSE,
+#             title="Predicted precipitation \n(in inches)") + 
+#   tm_shape(P) + tm_dots(size=0.2) +
+#   tm_legend(legend.outside=TRUE)
 
 ```
 
 <!---Chunk for IDW using code from previous work--->
 ```{r echo=F, cache=T}
 
-#change the col names to match code that I previously wrote for IDW
-names(gt40) <- c("x", "y", "value", "count", "slope")
-
-#Check range in the x column
-range(gt40$x)
-#check range in y column
-range(gt40$y)
-#Check data spacing for x column
-xspacing <- diff(unique(gt40$x)) #data spacing in the X direction is 0.25 m (except at the ends)
-summary(xspacing)
-#check data spacing for z column
-yspacing <- diff(unique(gt40$y)) 
-summary(yspacing)
-
-# make a grid
-XZGrid <- expand.grid(x=seq(-40,50,by=.05),y=seq(0.0004,7.5,by=0.05))
-
-#Run IDW
-gt40.idw <- idw(slope~1, ~x+y, gt40, newdata=XZGrid)
-#name the third column
-names(gt40)[6] <- "intep.val"
-#using level plot to plot IDW
-levelplot(intep.val~X+Z,FFSU.idw,col.regions=jet.col(101),
-          at=seq(12.9,38.2,length=101),asp="iso")
+# #change the col names to match code that I previously wrote for IDW
+# names(gt40) <- c("x", "y", "value", "count", "slope")
+# 
+# #Check range in the x column
+# range(gt40$x)
+# #check range in y column
+# range(gt40$y)
+# #Check data spacing for x column
+# xspacing <- diff(unique(gt40$x)) #data spacing in the X direction is 0.25 m (except at the ends)
+# summary(xspacing)
+# #check data spacing for z column
+# yspacing <- diff(unique(gt40$y)) 
+# summary(yspacing)
+# 
+# # make a grid
+# XZGrid <- expand.grid(x=seq(-40,50,by=.05),y=seq(0.0004,7.5,by=0.05))
+# 
+# #Run IDW
+# gt40.idw <- idw(slope~1, ~x+y, gt40, newdata=XZGrid)
+# #name the third column
+# names(gt40)[6] <- "intep.val"
+# #using level plot to plot IDW
+# levelplot(intep.val~X+Z,FFSU.idw,col.regions=jet.col(101),
+#           at=seq(12.9,38.2,length=101),asp="iso")
 
 
 ```
@@ -239,32 +282,32 @@ levelplot(intep.val~X+Z,FFSU.idw,col.regions=jet.col(101),
 
 <!---Chunk for Temp Map using IDW with terry's approach--->
 ```{r echo=F, cache=T}
-#Terry's approach
-#make data frame with slopes and coordinates into spatial objects
-  #Produce a grid that creates a greater density of points between those
-  #use idw function to interpolate spatial object of the data frame
-    #slopes as a function of coordinates
-  #Plot result of idw (spatial object) with spplot
-    #spplot(data = spatial df, zcol=slope)
-    #or spplot.grid(obj= new_df, zcol = "slope")
-    #will give a heat map of the grids
-
-#grid for hawaii
-hix<-seq(-160.24345, -154.80420,by = .1)
-hiy<-seq(18.96392, 22.22314, by = .1)
-hid1<-expand.grid(x=hix,y=hiy)
-
-#hawaii idw
-hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
-
-#slopes as a function of coordinates
-sp::coordinates(hid1)<- c("x","y")
-
-#convert to spatial points df
-hid1$slope<-hi.idw
-
-#Plot result of idw (spatial object) with spplot
-spplot(obj = hid1, zcol = hid1@data$Z)
+# #Terry's approach
+# #make data frame with slopes and coordinates into spatial objects
+#   #Produce a grid that creates a greater density of points between those
+#   #use idw function to interpolate spatial object of the data frame
+#     #slopes as a function of coordinates
+#   #Plot result of idw (spatial object) with spplot
+#     #spplot(data = spatial df, zcol=slope)
+#     #or spplot.grid(obj= new_df, zcol = "slope")
+#     #will give a heat map of the grids
+# 
+# #grid for hawaii
+# hix<-seq(-160.24345, -154.80420,by = .1)
+# hiy<-seq(18.96392, 22.22314, by = .1)
+# hid1<-expand.grid(x=hix,y=hiy)
+# 
+# #hawaii idw
+# hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
+# 
+# #slopes as a function of coordinates
+# sp::coordinates(hid1)<- c("x","y")
+# 
+# #convert to spatial points df
+# hid1$slope<-hi.idw
+# 
+# #Plot result of idw (spatial object) with spplot
+# spplot(obj = hid1, zcol = hid1@data$Z)
 
 
 ```
@@ -272,7 +315,25 @@ spplot(obj = hid1, zcol = hid1@data$Z)
 <!---Chunk for plotting data using time series--->
 ```{r echo=F, cache=T}
 
-plot(temp$year[temp$variable == "AL_MUSCLE SHOALS REGIONAL AP_c(-87.5997, 34.7441)"], temp$value[temp$variable == "AL_MUSCLE SHOALS REGIONAL AP_c(-87.5997, 34.7441)"], type="l",
-     xlim=range(temp$year), ylim=range(temp$value))
+# plot(temp$year[temp$variable == "AL_MUSCLE SHOALS REGIONAL AP_c(-87.5997, 34.7441)"], temp$value[temp$variable == "AL_MUSCLE SHOALS REGIONAL AP_c(-87.5997, 34.7441)"], type="l",
+#      xlim=range(temp$year), ylim=range(temp$value))
+# 
+# plot(temp$year, temp$value, col = temp$variable)
 
 ```
+
+## Results
+
+
+
+## Discussion
+
+Can we see the climate warming? 
+
+Where is it getting warmer? 
+
+Where is it getting colder? 
+
+Where is it staying the same? 
+
+What does the change in presipitation look like? How does it compare to changes in temperature? 
