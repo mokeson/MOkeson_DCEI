@@ -176,6 +176,8 @@ for(counter in 1:nrow(gt40p))
 cus.temp<-map("state",".")
 points(gt40$lon,gt40$lat) 
 
+# http://www.milanor.net/blog/maps-in-r-plotting-data-points-on-a-map/
+
 ```
 
 <!---Chunk for preparing for mapping temp on hawaii (R maps package)--->
