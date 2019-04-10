@@ -160,51 +160,73 @@ for(counter in 1:nrow(gt40p))
 }
 ```
 
-
 <!---Chunk for preparing for mapping (R maps package)--->
 ```{r echo=F, cache=T}
-#Map of the US
+# 
+# Map of the US
 cus.temp<-map("state",".")
 points 
 
 #Map of Hawaii
-hi<-map("world","USA:Hawaii")
+hi.temp<-map("world","USA:Hawaii")
 
 #Map of Alaska
-ak<-map("world","USA:Alaska",xlim = c(-180,-120))
+ak.temp<-map("world","USA:Alaska",xlim = c(-180,-120))
 points(gt40$lon,gt40$lat)
 ```
 
 <!---Chunk for Temp Map--->
 ```{r echo=F, cache=T}
-#Terry's approach
-#make data frame with slopes and coordinates into spatial objects
-  #Produce a grid that creates a greater density of points between those
-  #use idw function to interpolate spatial object of the data frame
-    #slopes as a function of coordinates
-  #Plot result of idw (spatial object) with spplot
-    #spplot(data = spatial df, zcol=slope)
-    #or spplot.grid(obj= new_df, zcol = "slope")
-    #will give a heat map of the grids
+# #Terry's approach
+# #make data frame with slopes and coordinates into spatial objects
+#   #Produce a grid that creates a greater density of points between those
+#   #use idw function to interpolate spatial object of the data frame
+#     #slopes as a function of coordinates
+#   #Plot result of idw (spatial object) with spplot
+#     #spplot(data = spatial df, zcol=slope)
+#     #or spplot.grid(obj= new_df, zcol = "slope")
+#     #will give a heat map of the grids
+# 
+# #grid for hawaii
+# hix<-seq(-160.24345, -154.80420,by = .1)
+# hiy<-seq(18.96392, 22.22314, by = .1)
+# hid1<-expand.grid(x=hix,y=hiy)
+# 
+# #hawaii idw
+# hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
+# 
+# #slopes as a function of coordinates
+# sp::coordinates(hid1)<- c("x","y")
+# 
+# #convert to spatial points df
+# hid1$slope<-hi.idw
+# 
+# #Plot result of idw (spatial object) with spplot
+# spplot(obj = hid1, zcol = hid1@data$Z)
 
-#grid for hawaii
-hix<-seq(-160.24345, -154.80420,by = .1)
-hiy<-seq(18.96392, 22.22314, by = .1)
-hid1<-expand.grid(x=hix,y=hiy)
+# Create an empty grid where n is the total number of cells
+grd              <- as.data.frame(spsample(P, "regular", n=50000))
+names(grd)       <- c("X", "Y")
+coordinates(grd) <- c("X", "Y")
+gridded(grd)     <- TRUE  # Create SpatialPixel object
+fullgrid(grd)    <- TRUE  # Create SpatialGrid object
 
-#hawaii idw
-hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
+# Add P's projection information to the empty grid
+proj4string(grd) <- proj4string(P)
 
-#slopes as a function of coordinates
-sp::coordinates(hid1)<- c("x","y")
+# Interpolate the grid cells using a power value of 2 (idp=2.0)
+P.idw <- gstat::idw(Precip_in ~ 1, P, newdata=grd, idp=2.0)
 
-#convert to spatial points df
-hid1$slope<-hi.idw
+# Convert to raster object then clip to Texas
+r       <- raster(P.idw)
+r.m     <- mask(r, W)
 
-#Plot result of idw (spatial object) with spplot
-spplot(obj = hid1, zcol = hid1@data$Z)
-
-
+# Plot
+tm_shape(r.m) + 
+  tm_raster(n=10,palette = "RdBu", auto.palette.mapping = FALSE,
+            title="Predicted precipitation \n(in inches)") + 
+  tm_shape(P) + tm_dots(size=0.2) +
+  tm_legend(legend.outside=TRUE)
 
 ```
 
