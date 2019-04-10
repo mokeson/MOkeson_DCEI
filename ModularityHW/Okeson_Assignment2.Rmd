@@ -177,35 +177,10 @@ points(gt40$lon,gt40$lat)
 
 <!---Chunk for Temp Map--->
 ```{r echo=F, cache=T}
-# #Terry's approach
-# #make data frame with slopes and coordinates into spatial objects
-#   #Produce a grid that creates a greater density of points between those
-#   #use idw function to interpolate spatial object of the data frame
-#     #slopes as a function of coordinates
-#   #Plot result of idw (spatial object) with spplot
-#     #spplot(data = spatial df, zcol=slope)
-#     #or spplot.grid(obj= new_df, zcol = "slope")
-#     #will give a heat map of the grids
-# 
-# #grid for hawaii
-# hix<-seq(-160.24345, -154.80420,by = .1)
-# hiy<-seq(18.96392, 22.22314, by = .1)
-# hid1<-expand.grid(x=hix,y=hiy)
-# 
-# #hawaii idw
-# hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
-# 
-# #slopes as a function of coordinates
-# sp::coordinates(hid1)<- c("x","y")
-# 
-# #convert to spatial points df
-# hid1$slope<-hi.idw
-# 
-# #Plot result of idw (spatial object) with spplot
-# spplot(obj = hid1, zcol = hid1@data$Z)
 
+# Code from https://mgimond.github.io/Spatial/interpolation-in-r.html 
 # Create an empty grid where n is the total number of cells
-grd              <- as.data.frame(spsample(P, "regular", n=50000))
+grd <- as.data.frame(spsample(gt40, "regular", n=50000))
 names(grd)       <- c("X", "Y")
 coordinates(grd) <- c("X", "Y")
 gridded(grd)     <- TRUE  # Create SpatialPixel object
@@ -230,16 +205,74 @@ tm_shape(r.m) +
 
 ```
 
-<!---Chunk for Temp Map using automap--->
+<!---Chunk for IDW using code from previous work--->
 ```{r echo=F, cache=T}
 
-#load automap (can move this to beginning with rest of the packages if it is successful)
-library(automap)
+#change the col names to match code that I previously wrote for IDW
+names(gt40) <- c("x", "y", "value", "count", "slope")
 
-#Ordinary kriging
-#Need help understanding that these arguments mean in relation to my data https://www.r-bloggers.com/automatic-spatial-interpolation-with-r-the-automap-package/
+#Check range in the x column
+range(gt40$x)
+#check range in y column
+range(gt40$y)
+#Check data spacing for x column
+xspacing <- diff(unique(gt40$x)) #data spacing in the X direction is 0.25 m (except at the ends)
+summary(xspacing)
+#check data spacing for z column
+yspacing <- diff(unique(gt40$y)) 
+summary(yspacing)
+
+# make a grid
+XZGrid <- expand.grid(x=seq(-40,50,by=.05),y=seq(0.0004,7.5,by=0.05))
+
+#Run IDW
+gt40.idw <- idw(slope~1, ~x+y, gt40, newdata=XZGrid)
+#name the third column
+names(gt40)[6] <- "intep.val"
+#using level plot to plot IDW
+levelplot(intep.val~X+Z,FFSU.idw,col.regions=jet.col(101),
+          at=seq(12.9,38.2,length=101),asp="iso")
 
 
+```
 
+
+<!---Chunk for Temp Map using IDW with terry's approach--->
+```{r echo=F, cache=T}
+#Terry's approach
+#make data frame with slopes and coordinates into spatial objects
+  #Produce a grid that creates a greater density of points between those
+  #use idw function to interpolate spatial object of the data frame
+    #slopes as a function of coordinates
+  #Plot result of idw (spatial object) with spplot
+    #spplot(data = spatial df, zcol=slope)
+    #or spplot.grid(obj= new_df, zcol = "slope")
+    #will give a heat map of the grids
+
+#grid for hawaii
+hix<-seq(-160.24345, -154.80420,by = .1)
+hiy<-seq(18.96392, 22.22314, by = .1)
+hid1<-expand.grid(x=hix,y=hiy)
+
+#hawaii idw
+hi.idw<-phylin::idw(values = gt40[,"slope"],coords = gt40[,c("lat","lon")], grid = hid1)
+
+#slopes as a function of coordinates
+sp::coordinates(hid1)<- c("x","y")
+
+#convert to spatial points df
+hid1$slope<-hi.idw
+
+#Plot result of idw (spatial object) with spplot
+spplot(obj = hid1, zcol = hid1@data$Z)
+
+
+```
+
+<!---Chunk for plotting data using time series--->
+```{r echo=F, cache=T}
+
+plot(temp$year[temp$variable == "AL_MUSCLE SHOALS REGIONAL AP_c(-87.5997, 34.7441)"], temp$value[temp$variable == "AL_MUSCLE SHOALS REGIONAL AP_c(-87.5997, 34.7441)"], type="l",
+     xlim=range(temp$year), ylim=range(temp$value))
 
 ```
