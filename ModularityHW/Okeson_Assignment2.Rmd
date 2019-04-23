@@ -37,6 +37,8 @@ library(sp)
 library(ggmap)
 library(mapdata)
 library(maptools)
+library(lattice)
+library(plot3D)
 
 knitr::opts_chunk$set(cache=T)
 
@@ -198,6 +200,7 @@ points(gt40$lon,gt40$lat)
 
 <!---Chunk for preparing for mapping precip on contintntal US (R maps package)--->
 ```{r echo=F, cache=T, fig.cap = "Figure 4. Annual-Average Precipitation data for the Continental United States"}
+# Maps are only showing up with few points, this will probably mess up spatial interpolation if I can't clip properly 
 # Map of the US
 cus.pcpn<-map("state",".")
 points(gt40p$lon,gt40p$lat)
@@ -253,30 +256,35 @@ points(gt40p$lon,gt40p$lat)
 <!---Chunk for IDW using code from previous work--->
 ```{r echo=F, cache=T}
 
-# #change the col names to match code that I previously wrote for IDW
-# names(gt40) <- c("x", "y", "value", "count", "slope")
-# 
-# #Check range in the x column
-# range(gt40$x)
-# #check range in y column
-# range(gt40$y)
-# #Check data spacing for x column
-# xspacing <- diff(unique(gt40$x)) #data spacing in the X direction is 0.25 m (except at the ends)
-# summary(xspacing)
-# #check data spacing for z column
-# yspacing <- diff(unique(gt40$y)) 
-# summary(yspacing)
-# 
-# # make a grid
-# XZGrid <- expand.grid(x=seq(-40,50,by=.05),y=seq(0.0004,7.5,by=0.05))
-# 
-# #Run IDW
-# gt40.idw <- idw(slope~1, ~x+y, gt40, newdata=XZGrid)
-# #name the third column
+#change the col names to match code that I previously wrote for IDW
+names(gt40) <- c("y", "x", "value", "count", "slope")
+
+#Check range in the x column
+range(gt40$x)
+#check range in y column
+range(gt40$y)
+#Check data spacing for x column
+xspacing <- str(unique(gt40$x)) #data spacing in the X direction is 0.25 m (except at the ends)
+summary(xspacing)
+#check data spacing for z column
+yspacing <- diff(unique(gt40$y))
+summary(yspacing)
+
+# make a grid
+XYGrid <- expand.grid(x=seq(floor(min(gt40$x)),
+                            ceiling(max(gt40$x)),by=.5),
+                      y=seq(floor(max(gt40$y)),
+                            ceiling(min(gt40$y)), by= -.5))
+
+#Run IDW
+gt40.idw <- idw(values = gt40[,"slope"],coords = gt40[,c("x","y")], grid = XYGrid)
+# add IDW to grid
+XYGrid$intep.val <- gt40.idw$Z
+
+#name the third column
 # names(gt40)[6] <- "intep.val"
-# #using level plot to plot IDW
-# levelplot(intep.val~X+Z,FFSU.idw,col.regions=jet.col(101),
-#           at=seq(12.9,38.2,length=101),asp="iso")
+#using level plot to plot IDW
+levelplot(intep.val~x+y,XYGrid,col.regions=jet.col(101),asp="iso")
 
 
 ```
