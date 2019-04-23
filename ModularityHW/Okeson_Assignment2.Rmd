@@ -259,6 +259,43 @@ levelplot(intep.val~x+y,XYGrid,col.regions=jet.col(101),asp="iso")
 
 ```
 
+<!---Chink for setting up mapping--->
+```{r echo=F, cache=T}
+#use spatial points function
+##data from gt40, col 2 is x(long) col 1 is y(lat)
+##coordinate refrence system (CRS): projection is longitude and latitude and datum is the European Petroleum Survey Group
+dsp <- SpatialPoints(gt40[,2:1], proj4string = CRS("+proj=longlat +datum=WGS84"))
+dsp <- SpatialPointsDataFrame(dsp, gt40)
+
+
+```
+
+<!---Chunk for preparing for mapping temp on contintntal US (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 1. Annual-Average Temperature data for the Continental United States"}
+# Map of the US
+cus.temp<-map("state",".")
+points(gt40$lon,gt40$lat) 
+
+# http://www.milanor.net/blog/maps-in-r-plotting-data-points-on-a-map/
+
+```
+
+<!---Chunk for preparing for mapping temp on hawaii (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 2. Annual-Average Temperature data for Hawaii"}
+#Map of Hawaii (no data?)
+hi.temp<-map("world","USA:Hawaii")
+points(gt40$lon,gt40$lat) 
+
+```
+
+<!---Chunk for preparing for mapping temp on Alaska (R maps package)--->
+```{r echo=F, cache=T, fig.cap = "Figure 3. Annual-Average Temperarura data for Alaska"}
+#Map of Alaska
+ak.temp<-map("world","USA:Alaska",xlim = c(-180,-120))
+points(gt40$lon,gt40$lat)
+
+```
+
 <!---Chunk for IDW with pcpn data--->
 ```{r echo=F, cache=T}
 
